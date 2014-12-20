@@ -50,7 +50,7 @@ def MainMenu():
     oc = ObjectContainer()
 
     #oc.add(DirectoryObject(key=Callback(DailyLift), title="Daily Lift", thumb=R('daily-lift.jpg')))
-    for item in YT_PLAYLISTS:
+    for item in sorted(YT_PLAYLISTS):
         #thumb = R(item + '.jpg')
         oc.add(DirectoryObject(key=Callback(YoutubePlaylist, which=item),
                                title=YT_PLAYLISTS[item]['title'],
