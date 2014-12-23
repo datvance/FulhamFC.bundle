@@ -84,7 +84,7 @@ def MatchReplays(page=1):
             title=title,
             summary=summary,
             thumb=thumb,
-            originally_available_at=date
+            originally_available_at=Datetime.ParseDate(date)
         ))
 
     return oc
