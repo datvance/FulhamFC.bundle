@@ -5,7 +5,11 @@ NAME = L('Title')
 
 '''
 FFC_DOT_COM = 'http://www.fulhamfc.com'
+MATCH_REPLAYS_URL = FFC_DOT_COM + '/media-centre/extended-highlights?page=%d'
 '''
+
+VIMEO_URL = 'http://vimeo.com/fulhamfc/videos/rss'
+NAMESPACES = {"media": "http://search.yahoo.com/mrss/"}
 
 ART = R('art-default.jpg')
 ICON = R('icon-default.png')
@@ -49,42 +53,57 @@ def MainMenu():
 
     oc = ObjectContainer()
 
-    #oc.add(DirectoryObject(key=Callback(DailyLift), title="Daily Lift", thumb=R('daily-lift.jpg')))
+    oc.add(DirectoryObject(key=Callback(MatchReplays), title="Match Replays", thumb=ICON))
     for item in sorted(YT_PLAYLISTS):
-        #thumb = R(item + '.jpg')
         oc.add(DirectoryObject(key=Callback(YoutubePlaylist, which=item),
                                title=YT_PLAYLISTS[item]['title'],
                                thumb=ICON))
-
-    #oc.add(DirectoryObject(key=Callback(Services), title="Church Services", thumb=SERVICE_ICON))
-    #oc.add(DirectoryObject(key=Callback(Thinkers), title="Time4Thinkers", thumb=R(ICON)))
 
     return oc
 
 
 ####################################################################################################
-@route(PREFIX + '/daily-lift')
-def DailyLift(page=1):
+@route(PREFIX + '/match-replays')
+def MatchReplays(page=1):
 
     page = int(page)
-    oc = ObjectContainer(view_group="InfoList", title1="Daily Lift")
+    oc = ObjectContainer(view_group="InfoList", title1="Match Replays")
 
-    url = DAILY_LIFT_URL
-    if page > 1:
-        url += '/(offset)/%d' % ((page - 1) * 10)
+    content = XML.ElementFromURL(VIMEO_URL)
+    items = content.xpath('/rss/channel/item')
 
+    for item in items:
+        title = item.xpath('./title')[0].text
+        date = item.xpath('./pubDate')[0].text
+        url = item.xpath('./link')[0].text
+        summary = item.xpath('./description')[0].text
+        thumb = item.xpath(".//media:thumbnail/@url", namespaces=NAMESPACES)
+
+        oc.add(VideoClipObject(
+            url=url,
+            title=title,
+            summary=summary,
+            thumb=thumb,
+            originally_available_at=date
+        ))
+
+    return oc
+
+'''
+    url = MATCH_REPLAYS_URL % page
     html = HTML.ElementFromURL(url)
 
-    thumbs = html.xpath('//div[@class="cover-image"]/img/@src')
-    titles = html.xpath('//h2[@class="line-title"]/a')
-    byline = html.xpath('//span[contains(@class,"author")]')
+    results = html.xpath('//div[@class="result"]')
+    num_results = len(results)
+    if num_results < 1
+        return ObjectContainer(header=NAME, message="There was a problem retrieving the Match Replays.")
 
-    num_thumbs = len(thumbs)
-    num_titles = len(titles)
-    log("Thumbs: %d, Titles: %d, Bylines: %d" % (num_thumbs, num_titles, len(byline)))
+    for index in range(num_results)
+        thumbs = results[index].xpath('.//img/@src')
+        titles = results[index].xpath('.//span/text()')
+        dates = results[index].xpath('.//em/text()')
 
-    if num_thumbs < 1 or num_titles < 1 or num_thumbs != num_titles:
-        return ObjectContainer(header=NAME, message="There was a problem retrieving the Daily Lifts.")
+        log("Thumbs: %d, Titles: %d, Bylines: %d" % (len(thumbs), len(titles), len(dates)))
 
     for index in range(num_thumbs):
         url = FFC_DOT_COM + titles[index].get('href')
@@ -94,23 +113,8 @@ def DailyLift(page=1):
 
         oc.add(TrackObject(url=url, summary=summary, thumb=thumb, title=title, duration=120000))
 
-    oc.add(NextPageObject(key=Callback(DailyLift, page=page + 1), title="More Lifts..."))
-
-    return oc
-
-
-####################################################################################################
-@route(PREFIX + '/services')
-def Services():
-
-    oc = ObjectContainer(view_group="InfoList", title1="Church Services")
-
-    oc.add(TrackObject(url=SUNDAY_URL, title="Sunday Service", thumb=SERVICE_ICON))
-    oc.add(TrackObject(url=WEDNESDAY_URL, title="Wednesday Meeting", thumb=SERVICE_ICON))
-    #oc.add(TrackObject(url=THANKSGIVING_URL, title="Thanksgiving Service", thumb=SERVICE_ICON))
-
-    return oc
-
+    oc.add(NextPageObject(key=Callback(MatchReplays, page=page + 1), title="More Replays..."))
+'''
 
 ####################################################################################################
 # mostly pulled from https://github.com/shopgirl284/Webisodes.bundle/blob/master/Contents/Code/__init__.py
