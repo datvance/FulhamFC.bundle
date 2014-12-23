@@ -1,12 +1,7 @@
-DEBUG = True
+DEBUG = False
 
 PREFIX = '/video/fulhamfc'
 NAME = L('Title')
-
-'''
-FFC_DOT_COM = 'http://www.fulhamfc.com'
-MATCH_REPLAYS_URL = FFC_DOT_COM + '/media-centre/extended-highlights?page=%d'
-'''
 
 VIMEO_URL = 'http://vimeo.com/fulhamfc/videos/rss'
 NAMESPACES = {"media": "http://search.yahoo.com/mrss/"}
@@ -24,8 +19,6 @@ YT_PLAYLISTS = {'goals': {'playlist': 'PLY8T1xH7hxopNeqTcMIGCMAKTI3fMfFEt', 'tit
                 'u18': {'playlist': 'PLY8T1xH7hxoqin2v-iCgFV0rj-3kq1sUa', 'title': 'U18'},
                 'u21': {'playlist': 'PLY8T1xH7hxoodbUB6g86QE89N1kpQK2xT', 'title': 'U21'},
                 'flashbacks': {'playlist': 'PLY8T1xH7hxoon4TrZA3JFckiuWFnwoMa9', 'title': 'Flashbacks'}}
-
-MAXRESULTS = 20
 
 
 ####################################################################################################
