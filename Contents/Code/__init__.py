@@ -88,6 +88,8 @@ def MatchReplays():
             originally_available_at=dt
         ))
 
+    return oc
+
 
 ####################################################################################################
 # mostly pulled from https://github.com/shopgirl284/Webisodes.bundle/blob/master/Contents/Code/__init__.py
