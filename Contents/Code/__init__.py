@@ -64,57 +64,30 @@ def MainMenu():
 
 ####################################################################################################
 @route(PREFIX + '/match-replays')
-def MatchReplays(page=1):
+def MatchReplays():
 
-    page = int(page)
     oc = ObjectContainer(view_group="InfoList", title1="Match Replays")
 
     content = XML.ElementFromURL(VIMEO_URL)
-    items = content.xpath('/rss/channel/item')
+    items = content.xpath('//item')
 
     for item in items:
-        title = item.xpath('./title')[0].text
         date = item.xpath('./pubDate')[0].text
+        dt = Datetime.ParseDate(date)
+        title = item.xpath('./title')[0].text + " (" + dt.strftime("%x") + ")"
         url = item.xpath('./link')[0].text
-        summary = item.xpath('./description')[0].text
-        thumb = item.xpath(".//media:thumbnail/@url", namespaces=NAMESPACES)
+        summary = String.StripTags(item.xpath('./description')[0].text).split('Cast:', 1)[0]
+        thumb = item.xpath(".//media:thumbnail/@url", namespaces=NAMESPACES)[0]
 
+        log(title)
         oc.add(VideoClipObject(
             url=url,
             title=title,
             summary=summary,
             thumb=thumb,
-            originally_available_at=Datetime.ParseDate(date)
+            originally_available_at=dt
         ))
 
-    return oc
-
-'''
-    url = MATCH_REPLAYS_URL % page
-    html = HTML.ElementFromURL(url)
-
-    results = html.xpath('//div[@class="result"]')
-    num_results = len(results)
-    if num_results < 1
-        return ObjectContainer(header=NAME, message="There was a problem retrieving the Match Replays.")
-
-    for index in range(num_results)
-        thumbs = results[index].xpath('.//img/@src')
-        titles = results[index].xpath('.//span/text()')
-        dates = results[index].xpath('.//em/text()')
-
-        log("Thumbs: %d, Titles: %d, Bylines: %d" % (len(thumbs), len(titles), len(dates)))
-
-    for index in range(num_thumbs):
-        url = FFC_DOT_COM + titles[index].get('href')
-        title = titles[index].text
-        summary = ' '.join(byline[index].xpath('.//text()')).split('.')[0]
-        thumb = FFC_DOT_COM + thumbs[index]
-
-        oc.add(TrackObject(url=url, summary=summary, thumb=thumb, title=title, duration=120000))
-
-    oc.add(NextPageObject(key=Callback(MatchReplays, page=page + 1), title="More Replays..."))
-'''
 
 ####################################################################################################
 # mostly pulled from https://github.com/shopgirl284/Webisodes.bundle/blob/master/Contents/Code/__init__.py
